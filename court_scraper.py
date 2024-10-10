@@ -4,11 +4,13 @@
 # Scrapes case records from Oregon eCourt to find the latest interesting cases (torts)
 # 
 # 
+# The counties I want: 
+# 116100,115100,115200,101100,114100,113100,126100
 # 
 
 # %%
 # request the required databases
-import requests, time, datetime, json, csv, os
+import requests, time, datetime, csv, os
 
 #Setup a session so we can keep the cookies for the next request
 s = requests.Session()
@@ -30,6 +32,8 @@ r = s.post('https://publicaccess.courts.oregon.gov/PublicAccessLogin/Login.aspx?
 r.raise_for_status()
 
 # %%
+import random
+
 
 #This section does one search for Jackson County, but all it's doing is getting us a __VIEWSTATE and __EVENTVALIDATION code that we can use to send the next request
 
@@ -44,6 +48,9 @@ county_data = {
 
 #Send the POST request
 results = s.post(county_url, data=county_data, headers=headers, cookies=s.cookies)
+
+# Wait for a random amount of time between 1 and 2 seconds
+time.sleep(random.uniform(1, 2))
 
 results.raise_for_status()
 
@@ -119,6 +126,9 @@ search_data = {
 	"HearingTypeIDs": "",
     }
 
+# Wait for a random amount of time between 1 and 2 seconds
+time.sleep(random.uniform(1, 2))
+
 #Send the POST request to search for all cases filed today in all counties.
 results = s.post(county_url, data=search_data, headers=headers, cookies=s.cookies)
 
@@ -138,7 +148,7 @@ main_table = soup.find(cellpadding="2")
 for row in main_table.find_all('tr'):
     if any("Tort" in cell.get_text() for cell in row.find_all('td')):
         #If the word "Tort" is found, check if the case is in the counties we are interested in
-        if any(county in row.find_all('td')[2].get_text() for county in ["Jackson", "Josephine", "Douglas", "Klamath", "Lake", "Coos", "Curry","Lane"]):  #If the case is in one of the counties we are interested in, pull out the case number, case name, county, and case type
+        if any(county in row.find_all('td')[2].get_text() for county in ["Jackson", "Josephine", "Douglas", "Klamath", "Lake", "Coos", "Curry"]):  #If the case is in one of the counties we are interested in, pull out the case number, case name, county, and case type
             cells = row.find_all('td')
             case_number = cells[0].get_text(strip=True) if len(cells) > 0 else ''
             case_name = cells[1].get_text(strip=True) if len(cells) > 1 else ''
