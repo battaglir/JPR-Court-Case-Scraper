@@ -4,6 +4,8 @@
 name: Python application
 
 on:
+  schedule:
+    - cron: '30 16 * * *'   # <-- Set your cron here (UTC). Uses github which can be ~2-10 mins late.
   workflow_dispatch:
 
 permissions:
