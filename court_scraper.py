@@ -208,5 +208,14 @@ if master_cases:
         channel="C07QGTYJJ9Z",
         text="New cases found in Oregon!\n" + "\n".join(formatted_cases)
     )
+else:
+	client = WebClient(token=SLACK_TOKEN)
+	
+	clean_date = datetime.datetime.now().strftime("%B %d, %Y")
+	#Post the message to the Slack channel
+	client.chat_postMessage(
+		channel="C07QGTYJJ9Z",
+		text="No new cases found in Oregon today, " + clean_date
+	)
 
 
