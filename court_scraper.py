@@ -70,6 +70,7 @@ eventval = soup.find('input', {'name': '__EVENTVALIDATION'})['value']
 # %%
 #Set the current date in the format MM/DD/YYYY
 current_date = datetime.datetime.now().strftime("%m/%d/%Y")
+print(f"Current date: "+current_date)
 
 #Set the POST request to search for all cases filed today in all counties.
 search_data = {
@@ -133,6 +134,7 @@ time.sleep(random.uniform(1, 2))
 results = s.post(county_url, data=search_data, headers=headers, cookies=s.cookies)
 
 results.raise_for_status()
+print(results)
 
 # %%
 
@@ -169,7 +171,9 @@ for row in main_table.find_all('tr'):
             master_cases[case_id] = case_dict
 
 #Print if new cases were found
-if master_cases:
+if soup == "":
+	print("HTML is empty!")
+elif master_cases:
     print("New cases found!")
 else:
     print("No new cases found.")
@@ -189,7 +193,15 @@ from slack_sdk.errors import SlackApiError
 #Set the Slack token from the enviromental variables
 SLACK_TOKEN = os.environ.get("SLACK_TOKEN")
 
-if master_cases:
+if soup == "":
+	client = WebClient(token=SLACK_TOKEN)
+	clean_date = datetime.datetime.now().strftime("%B %d, %Y")
+	#Post the message to the Slack channel
+	client.chat_postMessage(
+		channel="C07QGTYJJ9Z",
+		text="There was an HTML error today, " + clean_date
+	)
+elif master_cases:
     formatted_cases = []
     #Format the cases for the Slack message
     for case_number, case_info in master_cases.items():
