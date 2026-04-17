@@ -125,7 +125,7 @@ search_data = {
 	"RequireFirstName": "",
 	"CaseTypeIDs": "",
 	"HearingTypeIDs": "",
-    }
+}
 
 # Wait for a random amount of time between 1 and 2 seconds
 time.sleep(random.uniform(1, 2))
@@ -233,13 +233,15 @@ else:
 # %%
 #Delete any .csv files older than 24 hours
 now = datetime.datetime.now(tz=pacific_tz).strftime("%m-%d-%Y")
+print(f"Checking for old files to delete...")
 print(f"Current date: "+now)
 for filename in os.listdir('cases/.'):
-    print(filename)
-    if filename.endswith('.csv'):
-        file_date = re.search("State_of_Oregon_Court_Cases_(\d{2}-\d{2}-\d{4}).csv", filename)
-        print(file_date.group(1))
-        if file_date.group(1) != now:
-            os.remove(f'cases/{filename}')
-            print(f"Deleted old file: {filename}")
+	print(f"Checking file: "+filename)
+	if filename.endswith('.csv'):
+		file_date = re.search("State_of_Oregon_Court_Cases_(\d{2}-\d{2}-\d{4}).csv", filename)
+		if file_date.group(1) != now:
+			os.remove(f'cases/{filename}')
+			print(f"Deleted old file: {filename}")
+		else:
+			print(f"File is current, not deleting: {filename}")
 # %%
