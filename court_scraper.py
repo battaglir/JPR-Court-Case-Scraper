@@ -10,11 +10,11 @@
 
 # %%
 # request the required databases
-import requests, time, datetime, csv, os
+import requests, time, datetime, csv, os, pytz, re
 
 #Setup a session so we can keep the cookies for the next request
 s = requests.Session()
-
+pacific_tz = pytz.timezone('US/Pacific')
 #Get the login information from the environment variables
 login_password = os.environ.get('LOGIN_PASSWORD')
 
@@ -69,7 +69,7 @@ eventval = soup.find('input', {'name': '__EVENTVALIDATION'})['value']
 
 # %%
 #Set the current date in the format MM/DD/YYYY
-current_date = datetime.datetime.now().strftime("%m/%d/%Y")
+current_date = datetime.datetime.now(tz=pacific_tz).strftime("%m/%d/%Y")
 print(f"Current date: "+current_date)
 
 #Set the POST request to search for all cases filed today in all counties.
@@ -195,7 +195,7 @@ SLACK_TOKEN = os.environ.get("SLACK_TOKEN")
 
 if soup == "":
 	client = WebClient(token=SLACK_TOKEN)
-	clean_date = datetime.datetime.now().strftime("%B %d, %Y")
+	clean_date = datetime.datetime.now(tz=pacific_tz).strftime("%B %d, %Y")
 	#Post the message to the Slack channel
 	client.chat_postMessage(
 		channel="C07QGTYJJ9Z",
@@ -223,7 +223,7 @@ elif master_cases:
 else:
 	client = WebClient(token=SLACK_TOKEN)
 	
-	clean_date = datetime.datetime.now().strftime("%B %d, %Y")
+	clean_date = datetime.datetime.now(tz=pacific_tz).strftime("%B %d, %Y")
 	#Post the message to the Slack channel
 	client.chat_postMessage(
 		channel="C07QGTYJJ9Z",
@@ -232,13 +232,14 @@ else:
 
 # %%
 #Delete any .csv files older than 24 hours
-import os, datetime, pytz
-pacific_tz = pytz.timezone('US/Pacific')
-now = datetime.datetime.now(tz=pacific_tz)
+now = datetime.datetime.now(tz=pacific_tz).strftime("%m-%d-%Y")
+print(f"Current date: "+now)
 for filename in os.listdir('cases/.'):
+    print(filename)
     if filename.endswith('.csv'):
-        file_time = datetime.datetime.fromtimestamp(os.path.getmtime(f'cases/{filename}'), tz=pacific_tz)
-        if (now - file_time).total_seconds() > 24 * 3600:
+        file_date = re.search("State_of_Oregon_Court_Cases_(\d{2}-\d{2}-\d{4}).csv", filename)
+        print(file_date.group(1))
+        if file_date.group(1) != now:
             os.remove(f'cases/{filename}')
             print(f"Deleted old file: {filename}")
 # %%
