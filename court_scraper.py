@@ -179,7 +179,7 @@ else:
     print("No new cases found.")
 
 #Write the results to a CSV file
-with open(f"State_of_Oregon_Court_Cases_{current_date.replace('/', '-')}.csv", mode='w', newline='') as file:
+with open(f"cases/State_of_Oregon_Court_Cases_{current_date.replace('/', '-')}.csv", mode='w', newline='') as file:
     writer = csv.DictWriter(file, fieldnames=['Case Number', 'Case Name', 'County', 'Case Type'])
     writer.writeheader()
     for case in master_cases.values():
@@ -230,4 +230,15 @@ else:
 		text="No new cases found in Oregon today, " + clean_date
 	)
 
-
+# %%
+#Delete any .csv files older than 24 hours
+import os, datetime, pytz
+pacific_tz = pytz.timezone('US/Pacific')
+now = datetime.datetime.now(tz=pacific_tz)
+for filename in os.listdir('cases/.'):
+    if filename.endswith('.csv'):
+        file_time = datetime.datetime.fromtimestamp(os.path.getmtime(f'cases/{filename}'), tz=pacific_tz)
+        if (now - file_time).total_seconds() > 24 * 3600:
+            os.remove(f'cases/{filename}')
+            print(f"Deleted old file: {filename}")
+# %%
