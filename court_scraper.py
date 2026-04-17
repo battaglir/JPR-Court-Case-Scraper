@@ -188,7 +188,6 @@ with open(f"cases/State_of_Oregon_Court_Cases_{current_date.replace('/', '-')}.c
 # %%
 #Write an email with the results
 from slack_sdk import WebClient
-from slack_sdk.errors import SlackApiError
 
 #Set the Slack token from the enviromental variables
 SLACK_TOKEN = os.environ.get("SLACK_TOKEN")
